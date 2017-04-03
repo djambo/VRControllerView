@@ -151,51 +151,57 @@ window.addEventListener( 'vr controller connected', function( event ){
 			loader.options.convertUpAxis = true;
 				
 		let path  = 'other/VRControllers/Rift/';
-		let filename;
 
-		if(controller.gamepad.hand == 'left') {
-
-			fileName = 'oculus_cv1_controller_left.dae';
-
-		}  else if (controller.gamepad.hand == 'right') {
+		if(controller.gamepad.hand) {
 			
-			fileName = 'oculus_cv1_controller_right.dae';
+			let fileName;
 
+			if(controller.gamepad.hand == 'left') {
+
+				fileName = 'oculus_cv1_controller_left.dae';
+
+			} else if (controller.gamepad.hand == 'right') {
+
+				fileName = 'oculus_cv1_controller_right.dae';
+
+			}
+
+			loader.load( path +  fileName, function ( collada ) {
+
+				dae = collada.scene;
+
+				//some collada fixes
+				dae.scale.x = dae.scale.y = dae.scale.z = 1;
+				dae.rotation.y = Math.PI;
+				dae.rotation.x = 50.6 * Math.PI / 180;
+					
+				dae.position.copy( new THREE.Vector3(0.0055,0.04, -0.03) );
+
+				let loader = new THREE.TextureLoader();
+				loader.setPath( 'other/VRControllers/Rift/' );
+
+				dae.traverse ( function (child) {
+
+				    if (child instanceof THREE.Mesh) {
+				    	child.castShadow = true;
+			     	
+			        	// 4k shadowmap looks bad 
+						// child.receiveShadow = true
+						child.material.color = new THREE.Color(0.4,0.4,0.4);
+						child.material.specular = new THREE.Color(0.06, 0.06, 0.06);
+
+						child.material.shininess = 20;
+						child.material.side = THREE.DoubleSide;
+						child.material.map = loader.load( 'oculus_cv1_controller_col.png' );
+						child.material.specularMap = loader.load( 'oculus_cv1_controller_spec.png' );
+					}
+			   	})
+
+				controller.add( dae );
+
+			})
 		}
 
-		loader.load( path + filaName, function ( collada ) {
-
-			dae = collada.scene;
-
-			//some collada fixes
-			dae.scale.x = dae.scale.y = dae.scale.z = 1;
-			dae.rotation.y = Math.PI;
-			dae.rotation.x = 50.6 * Math.PI / 180;
-				
-			dae.position.copy( new THREE.Vector3(0.0055,0.04, -0.03) );
-
-			let loader = new THREE.TextureLoader();
-			loader.setPath( 'other/VRControllers/Rift/' );
-
-			dae.traverse ( function (child) {
-
-			    if (child instanceof THREE.Mesh) {
-			    	child.castShadow = true;
-		     	
-		        	// 4k shadowmap looks bad 
-					// child.receiveShadow = true
-					child.material.color = new THREE.Color(0.4,0.4,0.4);
-					child.material.specular = new THREE.Color(0.06, 0.06, 0.06);
-
-					child.material.shininess = 20;
-					child.material.side = THREE.DoubleSide;
-					child.material.map = loader.load( 'oculus_cv1_controller_col.png' );
-					child.material.specularMap = loader.load( 'oculus_cv1_controller_spec.png' );
-				}
-		   	})
-
-			controller.add( dae );
-		})
 	}
 
 
