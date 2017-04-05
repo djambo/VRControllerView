@@ -4,24 +4,55 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<title>VR Controllers test</title>
-		<link rel="stylesheet" type="text/css" href="self/base.css">
+		<link rel="stylesheet" type="text/css" href="examplefiles/css/base.css">
 
-		<script src="other/three.min.js"></script>
-		<script src="other/WebVR.js"></script>
-		<script src="other/VREffect.js"></script>
-		<script src="other/VRControls.js"></script>
-		<script src="other/ColladaLoader.js"></script>				
-		<script src="other/datguivr.min.js"></script>
-		<script src="other/VRControllers/OrientationArmModel.js"></script>
-		<script src="other/VRControllers/VRController.js"></script>
+		<script src="examplefiles/thirdparty/three.min.js"></script>
+		<script src="examplefiles/thirdparty/WebVR.js"></script>
+		<script src="examplefiles/thirdparty/VREffect.js"></script>
+		<script src="examplefiles/thirdparty/VRControls.js"></script>
+		<script src="examplefiles/thirdparty/ColladaLoader.js"></script>
+		<script src="examplefiles/thirdparty/datguivr.min.js"></script>
+		<script src="examplefiles/thirdparty/OrientationArmModel.js"></script>
+		<script src="examplefiles/thirdparty/VRController.js"></script>
 
-		<script src="self/tasks.js"></script>
-		<script src="self/base.js"></script>
-		<script src="self/grids.js"></script>
-		<script src="self/bubbles.js"></script>
-		<script src="self/controllers.js"></script>
+		<script src="examplefiles/js/tasks.js"></script>
+		<script src="examplefiles/js/base.js"></script>
+		<script src="examplefiles/js/grids.js"></script>
+		<script src="examplefiles/js/bubbles.js"></script>
+		<script src="build/vrcontrollerview.js"></script>
 	</head>
 	<body>
 		<div id="three"></div>
+
+    <script>
+
+      setupTasks.add( function(){
+        VRControllerView( window.camera, window.controls );
+      });
+
+      updateTasks.add( THREE.VRController.update.bind( THREE.VRController ));
+
+
+      window.addEventListener( 'vr controller connected', function( event ){
+
+        const controller = event.detail;
+
+        scene.add( controller );
+
+        controller.addEventListener( 'primary press began', function(){
+          controller.bubble = new Bubble( this );
+          controller.add( this.bubble );
+          if( controller.gamepad.hapticActuators ){
+            controller.gamepad.hapticActuators[ 0 ].pulse( 0.3, 200 );
+          }
+        });
+
+        controller.addEventListener( 'primary press ended', function(){
+          controller.bubble.release();
+        });
+
+      });
+
+    </script>
 	</body>
 </html>

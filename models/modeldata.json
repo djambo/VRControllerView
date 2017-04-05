@@ -1,0 +1,27 @@
+{
+  "daydream": {
+    "modelName":      "Daydream controller",
+    "diffusePath":    "models/daydream/daydream_diffuse.png",
+    "modelPath":      "models/daydream/daydream.json",
+    "color":          "#666666",
+    "metalness":      0,
+    "roughness":      0.6
+  },
+  "vive": {
+    "modelName":      "Vive",
+    "modelPath":      "models/vive/vive_controller.dae",
+    "color":          "#cccccc",
+    "specular":       "#303030",
+    "shininess":      20
+  },
+  "rift": {
+    "modelLeftPath":  "models/rift/oculus_cv1_controller_left.dae",
+    "modelRightPath": "models/rift/oculus_cv1_controller_right.dae",
+    "diffusePath":    "models/rift/oculus_cv1_controller_col.png",
+    "diffusePath":    "models/rift/oculus_cv1_controller_col.png",
+    "specularPath":   "models/rift/oculus_cv1_controller_spec.png",
+    "color":          "#666666",
+    "specular":       "#0f0f0f",
+    "shininess":      20
+  }
+}

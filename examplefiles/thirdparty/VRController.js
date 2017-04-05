@@ -7,19 +7,19 @@
 
 
 	Why is this useful?
-	1. This creates a THREE.Object3D() per gamepad and passes it to you 
+	1. This creates a THREE.Object3D() per gamepad and passes it to you
 	through an event for inclusion in your scene. It then handles copying the
 	live positions and orientations from the gamepad to this Object3D.
-	2. It also broadcasts button events to you on the Object3D instance. 
-	For supported devices button names are mapped to the buttons array when 
+	2. It also broadcasts button events to you on the Object3D instance.
+	For supported devices button names are mapped to the buttons array when
 	possible for convenience. (And this support is easy to extend.)
 
 	What do I have to do?
 	1. Include THREE.VRController.update() in your animation loop and listen
 	for the appropriate events.
 	2. When you receive a controller instance -- again, just an Object3D --
-	you ought to set its standingMatrix property to equal your 
-	controls.getStandingMatrix() and if you are expecting 3DOF controllers set 
+	you ought to set its standingMatrix property to equal your
+	controls.getStandingMatrix() and if you are expecting 3DOF controllers set
 	its head property equal to your camera.
 
 
@@ -35,7 +35,7 @@ THREE.VRController = function( gamepad ){
 
 
 	//  These are special properties you ought to overwrite on the instance
-	//  in your own code. For example: 
+	//  in your own code. For example:
 	//    controller.standingMatrix = controls.getStandingMatrix()
 	//    controller.head = camera//  Only really needed if controller is 3DOF.
 
@@ -69,7 +69,7 @@ THREE.VRController = function( gamepad ){
 
 	this.gamepad      = gamepad
 	this.gamepadStyle = style
-	this.gamepadDOF   = null//  Have to wait until gamepad.pose is defined to handle this. 
+	this.gamepadDOF   = null//  Have to wait until gamepad.pose is defined to handle this.
 	this.name         = gamepad.id
 
 
@@ -77,10 +77,10 @@ THREE.VRController = function( gamepad ){
 	//  If we have english names for these buttons that’s great.
 	//  If not... We’ll just roll with it because trying is important :)
 
-	const 
+	const
 	axes    = [ 0, 0 ],
 	buttons = []
-	
+
 	gamepad.buttons.forEach( function( button, i ){
 
 		buttons[ i ] = {
@@ -91,9 +91,16 @@ THREE.VRController = function( gamepad ){
 			isPressed: button.pressed
 		}
 	})
+
+	this.getButtonByName = function( name ){
+		return buttons.find( function( button ){
+			return button.name === name;
+		});
+	}
+
 	this.listenForButtonEvents = function(){
 
-		const 
+		const
 		verbosity  = THREE.VRController.verbosity,
 		controller = this
 
@@ -105,56 +112,56 @@ THREE.VRController = function( gamepad ){
 			if( verbosity >= 0.5 ) console.log( prefix +'axes changed', axes )
 			controller.dispatchEvent({ type: 'axes changed', axes: axes })
 
-			if( controller.gamepadStyle === 'vive' ){
+			// if( controller.gamepadStyle === 'vive' ){
 
 				//============== MOVE THUMB ON TRACKPAD ==================//
 
-				var posX = mapRange(axes[ 0 ], -1, 1, 0.019, -0.019) //0.019 / -0.019 are values specified in the SteamVR json file
-				var posZ = mapRange(axes[ 1 ], -1, 1, -0.019, 0.019)
+			// 	var posX = mapRange(axes[ 0 ], -1, 1, 0.019, -0.019) //0.019 / -0.019 are values specified in the SteamVR json file
+			// 	var posZ = mapRange(axes[ 1 ], -1, 1, -0.019, 0.019)
 
-				var trackpadTouch = controller.children[0].getObjectByName( "trackpad_touch" ).children[ 0 ];
-					trackpadTouch.position.x = posX;
-					trackpadTouch.position.z = posZ;
+			// 	var trackpadTouch = controller.children[0].getObjectByName( "trackpad_touch" ).children[ 0 ];
+			// 		trackpadTouch.position.x = posX;
+			// 		trackpadTouch.position.z = posZ;
 
-				// not sure how I can get the trackpad in in easier way here
-				var trackpad = buttons.filter(function( btn ) {return btn.name == 'trackpad';})[0];
+			// 	// not sure how I can get the trackpad in in easier way here
+			// 	var trackpad = buttons.filter(function( btn ) {return btn.name == 'trackpad';})[0];
 
-				if(trackpad.isPressed) {
+			// 	if(trackpad.isPressed) {
 
-					var rotX = mapRange(axes[ 0 ], -1, 1, -7, 7); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
-					var rotZ = mapRange(axes[ 1 ], -1, 1, -4, 4);
+			// 		var rotX = mapRange(axes[ 0 ], -1, 1, -7, 7); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
+			// 		var rotZ = mapRange(axes[ 1 ], -1, 1, -4, 4);
 
-					var trackpadPivot = controller.children[0].getObjectByName( "trackpad_pivot");
-						trackpadPivot.position.y = 0.001;
-						trackpadPivot.rotation.z = rotX * Math.PI / 180;
-						trackpadPivot.rotation.x = rotZ * Math.PI / 180;
-				}
+			// 		var trackpadPivot = controller.children[0].getObjectByName( "trackpad_pivot");
+			// 			trackpadPivot.position.y = 0.001;
+			// 			trackpadPivot.rotation.z = rotX * Math.PI / 180;
+			// 			trackpadPivot.rotation.x = rotZ * Math.PI / 180;
+			// 	}
 
-			} else if( controller.gamepadStyle === 'rift' ){
-							
-				var rotX = mapRange(axes[ 0 ], -1, 1, -20, 20); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
-				var rotZ = mapRange(axes[ 1 ], -1, 1, 20, -20);
+			// } else if( controller.gamepadStyle === 'rift' ){
 
-				var thumbstickPivot = controller.children[0].getObjectByName( "thumbstick_pivot");
+			// 	var rotX = mapRange(axes[ 0 ], -1, 1, -20, 20); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
+			// 	var rotZ = mapRange(axes[ 1 ], -1, 1, 20, -20);
 
-				if(controller.gamepad.hand == 'left') {
-				
-						thumbstickPivot.rotation.z = rotX * Math.PI / 180;
-						thumbstickPivot.rotation.x = rotZ * Math.PI / 180;
-				
-				} else if(controller.gamepad.hand == 'right') {
+			// 	var thumbstickPivot = controller.children[0].getObjectByName( "thumbstick_pivot");
 
-						thumbstickPivot.rotation.z = rotX * Math.PI / 180;
-						thumbstickPivot.rotation.x = rotZ * Math.PI / 180;
-				
-				}
+			// 	if(controller.gamepad.hand == 'left') {
 
-			}
+			// 			thumbstickPivot.rotation.z = rotX * Math.PI / 180;
+			// 			thumbstickPivot.rotation.x = rotZ * Math.PI / 180;
+
+			// 	} else if(controller.gamepad.hand == 'right') {
+
+			// 			thumbstickPivot.rotation.z = rotX * Math.PI / 180;
+			// 			thumbstickPivot.rotation.x = rotZ * Math.PI / 180;
+
+			// 	}
+
+			// }
 
 		}
 		buttons.forEach( function( button, i ){
-			
-			const 
+
+			const
 			prefixFull = prefix + button.name +' ',
 			isPrimary  = button.name === primaryButtonName ? ' isPrimary!' : ''
 
@@ -164,74 +171,74 @@ THREE.VRController = function( gamepad ){
 				if( verbosity >= 0.5 ) console.log( prefixFull +'value changed'+ isPrimary, button.value )
 				controller.dispatchEvent({ type: button.name  +' value changed', value: button.value })
 				if( isPrimary !== '' ) controller.dispatchEvent({ type: 'primary value changed', value: button.value })
-			
+
 				//============== MOVE ALL OTHER BUTTONS ===================//
-				if( controller.gamepadStyle === 'vive' ){
+				// if( controller.gamepadStyle === 'vive' ){
 
-					if(button.name == 'trigger') {
+				// 	if(button.name == 'trigger') {
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 17);
-						controller.children[0].getObjectByName( button.name + "_pivot").rotation.x = button.mappedValue * Math.PI / 180;
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 17);
+				// 		controller.children[0].getObjectByName( button.name + "_pivot").rotation.x = button.mappedValue * Math.PI / 180;
 
-					} else if(button.name == 'grips') {
+				// 	} else if(button.name == 'grips') {
 
-						controller.children[0].getObjectByName( "lgrip_pivot").rotation.y = - button.value * 2 *  Math.PI / 180;
-						controller.children[0].getObjectByName( "rgrip_pivot").rotation.y =  button.value * 2 * Math.PI / 180;
+				// 		controller.children[0].getObjectByName( "lgrip_pivot").rotation.y = - button.value * 2 *  Math.PI / 180;
+				// 		controller.children[0].getObjectByName( "rgrip_pivot").rotation.y =  button.value * 2 * Math.PI / 180;
 
-					} else if(button.name == 'menu') {
+				// 	} else if(button.name == 'menu') {
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00075);
-						controller.children[0].getObjectByName( 'button' ).position.y = - button.mappedValue;
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00075);
+				// 		controller.children[0].getObjectByName( 'button' ).position.y = - button.mappedValue;
 
-					}
+				// 	}
 
-				} else if( controller.gamepadStyle === 'rift' ){
+				// } else if( controller.gamepadStyle === 'rift' ){
 
-					if(button.name == 'thumbstick') {
+				// 	if(button.name == 'thumbstick') {
 
-						// controller.children[0].getObjectByName( "thumbstick_pivot").children[0].position.y = -0.003317;
-						// thumbstickPivot.position.z = 0.000386;
+				// 		// controller.children[0].getObjectByName( "thumbstick_pivot").children[0].position.y = -0.003317;
+				// 		// thumbstickPivot.position.z = 0.000386;
 
-					} else if(button.name == 'trigger') {
+				// 	} else if(button.name == 'trigger') {
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 17);
-						controller.children[0].getObjectByName( button.name + "_pivot").rotation.x = button.mappedValue * Math.PI / 180;
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 17);
+				// 		controller.children[0].getObjectByName( button.name + "_pivot").rotation.x = button.mappedValue * Math.PI / 180;
 
-					} else if(button.name == 'grip') {
+				// 	} else if(button.name == 'grip') {
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 12);
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 12);
 
-						if(controller.gamepad.hand == 'left') {
+				// 		if(controller.gamepad.hand == 'left') {
 
-							controller.children[0].getObjectByName( "grip_pivot").rotation.y = - button.mappedValue *  Math.PI / 180;
+				// 			controller.children[0].getObjectByName( "grip_pivot").rotation.y = - button.mappedValue *  Math.PI / 180;
 
-						} else if(controller.gamepad.hand == 'right') {
-			
-							controller.children[0].getObjectByName( "grip_pivot").rotation.y = button.mappedValue *  Math.PI / 180;
+				// 		} else if(controller.gamepad.hand == 'right') {
 
-						}
+				// 			controller.children[0].getObjectByName( "grip_pivot").rotation.y = button.mappedValue *  Math.PI / 180;
 
-					} else if(button.name == 'A') {
+				// 		}
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
-						controller.children[0].getObjectByName( 'a_button' ).children[0].position.y = - button.mappedValue;
+				// 	} else if(button.name == 'A') {
 
-					} else if(button.name == 'B') {
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
+				// 		controller.children[0].getObjectByName( 'a_button' ).children[0].position.y = - button.mappedValue;
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
-						controller.children[0].getObjectByName( 'b_button' ).children[0].position.y = - button.mappedValue;
+				// 	} else if(button.name == 'B') {
 
-					} else if(button.name == 'X') {
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
+				// 		controller.children[0].getObjectByName( 'b_button' ).children[0].position.y = - button.mappedValue;
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
-						controller.children[0].getObjectByName( 'x_button' ).children[0].position.y = - button.mappedValue;
+				// 	} else if(button.name == 'X') {
 
-					} else if(button.name == 'Y') {
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
+				// 		controller.children[0].getObjectByName( 'x_button' ).children[0].position.y = - button.mappedValue;
 
-						button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
-						controller.children[0].getObjectByName( 'y_button' ).children[0].position.y = - button.mappedValue;
-					}
-				}
+				// 	} else if(button.name == 'Y') {
+
+				// 		button.mappedValue = mapRange(button.value, 0, 1, 0, 0.00085);
+				// 		controller.children[0].getObjectByName( 'y_button' ).children[0].position.y = - button.mappedValue;
+				// 	}
+				// }
 
 			}
 			if( button.isTouched !== gamepad.buttons[ i ].touched ){
@@ -241,24 +248,24 @@ THREE.VRController = function( gamepad ){
 				if( verbosity >= 0.5 ) console.log( prefixFull +'touch'+ suffix + isPrimary )
 				controller.dispatchEvent({ type: button.name  +' touch'+ suffix })
 				if( isPrimary !== '' ) controller.dispatchEvent({ type: 'primary touch'+ suffix })
-			
+
 				//============== SHOW HIDE THUMB ON TRACKPAD ===================//
 
-				if( controller.gamepadStyle === 'vive' ){
+				// if( controller.gamepadStyle === 'vive' ){
 
-					if(button.name == 'trackpad') {
+				// 	if(button.name == 'trackpad') {
 
-						if(button.isTouched){	
-						
-							controller.children[0].getObjectByName( "trackpad_touch").visible = true
-						} else {
-						
-							controller.children[0].getObjectByName( "trackpad_touch").visible = false
-						}
+				// 		if(button.isTouched){
 
-					}
+				// 			controller.children[0].getObjectByName( "trackpad_touch").visible = true
+				// 		} else {
 
-				}
+				// 			controller.children[0].getObjectByName( "trackpad_touch").visible = false
+				// 		}
+
+				// 	}
+
+				// }
 			}
 			if( button.isPressed !== gamepad.buttons[ i ].pressed ){
 
@@ -267,13 +274,13 @@ THREE.VRController = function( gamepad ){
 				if( verbosity >= 0.5 ) console.log( prefixFull +'press'+ suffix + isPrimary )
 				controller.dispatchEvent({ type: button.name  +' press'+ suffix })
 				if( isPrimary !== '' ) controller.dispatchEvent({ type: 'primary press'+ suffix })
-			
+
 				//=================RELEASE TRACKPAD BUTTON =====================//
 
 				if( controller.gamepadStyle === 'vive' ){
 
 					if(button.name == 'trackpad'){
-						
+
 						var trackpadPivot = controller.children[0].getObjectByName( "trackpad_pivot");
 							trackpadPivot.position.y = 0.002;
 							trackpadPivot.rotation.set( 0, 0, 0 );
@@ -312,14 +319,14 @@ function mapRange(value, low1, high1, low2, high2) {
 
 THREE.VRController.prototype.update = function(){
 
-	const 
+	const
 	gamepad = this.gamepad,
 	pose = gamepad.pose
 
 
 	//  Once connected a gamepad will have a not-undefined pose
 	//  but that pose will be null until a user action ocurrs.
-	//  If it’s all null then no point in going any futher here. 
+	//  If it’s all null then no point in going any futher here.
 
 	if( pose === null || ( pose.orientation === null && pose.position === null )) return
 
@@ -334,7 +341,7 @@ THREE.VRController.prototype.update = function(){
 	//  If so let’s use it. If not ... no fallback plan.
 
 	if( pose.orientation !== null ) this.quaternion.fromArray( pose.orientation )
-	
+
 
 	//  POSITION -- EXISTS!
 	//  If we’ve got it then we’ll assume we have orientation too; 6 Degrees Of Freedom (6DOF).
@@ -367,17 +374,17 @@ THREE.VRController.prototype.update = function(){
 		this.armModel.setHeadOrientation( this.head.quaternion )
 		this.armModel.setControllerOrientation(( new THREE.Quaternion() ).fromArray( pose.orientation ))
 		this.armModel.update()
-		this.matrix.compose( 
+		this.matrix.compose(
 
-			this.armModel.getPose().position, 
-			this.armModel.getPose().orientation, 
+			this.armModel.getPose().position,
+			this.armModel.getPose().orientation,
 			this.scale
 		)
 	}
 
 
 	//  Ok, we know where the this ought to be so let’s set that.
-	
+
 	this.matrix.multiplyMatrices( this.standingMatrix, this.matrix )
 	this.matrixWorldNeedsUpdate = true
 
@@ -402,10 +409,10 @@ THREE.VRController.prototype.update = function(){
 THREE.VRController.verbosity = 0.5
 
 
-//  This is what makes everything so convenient. We keep track of found 
+//  This is what makes everything so convenient. We keep track of found
 //  controllers right here. And by adding this one update function into your
-//  animation loop we automagically update all the controller positions, 
-//  orientations, and button states. 
+//  animation loop we automagically update all the controller positions,
+//  orientations, and button states.
 
 THREE.VRController.controllers = {}
 THREE.VRController.hasGamepadEvents = 'ongamepadconnected' in window
@@ -433,7 +440,7 @@ THREE.VRController.onGamepadConnect = function( gamepad ){
 	//  Let’s create a new controller object
 	//  that’s really an extended THREE.Object3D
 	//  and pass it a reference to this gamepad.
-	
+
 	const
 	scope = THREE.VRController,
 	controller = new scope( gamepad )
@@ -446,7 +453,7 @@ THREE.VRController.onGamepadConnect = function( gamepad ){
 	scope.controllers[ gamepad.index ] = controller
 
 
-	//  Let’s give the controller a little rumble; some haptic feedback to 
+	//  Let’s give the controller a little rumble; some haptic feedback to
 	//  let the user know it’s connected and happy.
 
 	if( controller.gamepad.haptics ) controller.gamepad.haptics[ 0 ].vibrate( 0.25, 500 )
@@ -472,7 +479,7 @@ THREE.VRController.onGamepadDisconnect = function( gamepad ){
 
 	//  We need to find the controller that holds the reference to this gamepad.
 
-	const 
+	const
 	scope = THREE.VRController,
 	controller = scope.controllers[ gamepad.index ]
 
@@ -485,7 +492,7 @@ THREE.VRController.onGamepadDisconnect = function( gamepad ){
 	delete controller
 }
 window.addEventListener( 'gamepaddisconnected', function( event ){
-	
+
 	THREE.VRController.onGamepadDisconnect( event.gamepad )
 })
 
@@ -512,7 +519,7 @@ THREE.VRController.update = function(){
 
 
 //  Let’s take an ID string as reported directly from the gamepad API,
-//  translate that to a more generic “style name” 
+//  translate that to a more generic “style name”
 //  and also see if we can’t map some names to the buttons!
 
 THREE.VRController.supported = {
@@ -522,7 +529,7 @@ THREE.VRController.supported = {
 		style: 'daydream',
 
 
-		//  Daydream’s thumbpad is both a 2D trackpad and a button. 
+		//  Daydream’s thumbpad is both a 2D trackpad and a button.
 		//  X axis: -1 = Left, +1 = Right
 		//  Y axis: -1 = Top,  +1 = Bottom  NOTE THIS IS FLIPPED FROM VIVE!
 
@@ -532,7 +539,7 @@ THREE.VRController.supported = {
 	'OpenVR Gamepad': {
 
 		style: 'vive',
-		buttons: [ 
+		buttons: [
 
 
 			//  Vive’s thumpad is both a 2D trackpad and a button. We can
@@ -542,7 +549,7 @@ THREE.VRController.supported = {
 			//  X axis: -1 = Left,   +1 = Right
 			//  Y axis: -1 = Bottom, +1 = Top
 
-			'trackpad', 
+			'trackpad',
 
 
 			//  Vive’s trigger offers a binary touch and a
@@ -552,16 +559,16 @@ THREE.VRController.supported = {
 			//  if( value > 0.51 ) pressed = true   THRESHOLD FOR TURNING ON
 			//  if( value < 0.45 ) pressed = false  THRESHOLD FOR TURNING OFF
 
-			'trigger', 
+			'trigger',
 
-			
+
 			//  Each Vive controller has two grip buttons, one on the left and one on the right.
 			//  They are not distinguishable -- pressing either one will register as a press
 			//  with no knowledge of which one was pressed.
 			//  This value is binary, it is either touched/pressed (1) or not (0)
 			//  so no need to track anything other than the pressed boolean.
 
-			'grips', 
+			'grips',
 
 
 			//  The menu button is the tiny button above the thumbpad (NOT the one below it).
@@ -577,9 +584,9 @@ THREE.VRController.supported = {
 		buttons: [
 
 
-			//  Rift’s thumbstick has axes values and is also a button, 
+			//  Rift’s thumbstick has axes values and is also a button,
 			//  similar to Vive’s thumbpad.
-			//  But unlike Vive’s thumbpad it only has a binary touch value. 
+			//  But unlike Vive’s thumbpad it only has a binary touch value.
 			//  The press value is never set to true.
 			//  X axis: -1 = Left, +1 = Right
 			//  Y axis: -1 = Top,  +1 = Bottom  NOTE THIS IS FLIPPED FROM VIVE!
@@ -628,6 +635,5 @@ THREE.VRController.supported = {
 		primary: 'trigger'
 	}
 }
-
 
 
