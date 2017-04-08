@@ -18,7 +18,6 @@
     "modelLeftPath":  "models/rift/oculus_cv1_controller_left.dae",
     "modelRightPath": "models/rift/oculus_cv1_controller_right.dae",
     "diffusePath":    "models/rift/oculus_cv1_controller_col.png",
-    "diffusePath":    "models/rift/oculus_cv1_controller_col.png",
     "specularPath":   "models/rift/oculus_cv1_controller_spec.png",
     "color":          "#666666",
     "specular":       "#0f0f0f",
