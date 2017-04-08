@@ -43,6 +43,7 @@
           controller.bubble = new Bubble( this );
           controller.add( this.bubble );
           if( controller.gamepad.hapticActuators ){
+          	//On Oculus Rift this throws an error since Oculus Touch actuators aren't supported yet.
             controller.gamepad.hapticActuators[ 0 ].pulse( 0.3, 200 );
           }
         });
