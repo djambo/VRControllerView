@@ -69,79 +69,99 @@ const TO_RADIANS = Math.PI / 180;
 
 function generateBindings( controller, model ){
 
-  // const triggerPivot = model.getObjectByName( 'trigger_pivot' );
-  const triggerPivot = controller.children[0].getObjectByName( 'trigger_pivot' );
-
+  const thumbstick = model.getObjectByName( 'thumbstick' );
   const thumbstickPivot = model.getObjectByName( 'thumbstick_pivot' );
   const triggerPivot = model.getObjectByName( 'trigger_pivot' );
   const gripPivot = model.getObjectByName( 'grip_pivot' );
 
   if(controller.gamepad.hand == 'left') {
-    
-    const xButton = model.getObjectByName( 'x_button' );
-    const yButton = model.getObjectByName( 'y_button' );
+    var xButton = model.getObjectByName( 'x_button' ).children[ 0 ];
+    var yButton = model.getObjectByName( 'y_button' ).children[ 0 ];
 
   } else if(controller.gamepad.hand == 'right') {
-  
-    const aButton = model.getObjectByName( 'a_button' );
-    const bButton = model.getObjectByName( 'b_button' );
-  
+    var aButton = model.getObjectByName( 'a_button' ).children[ 0 ];
+    var bButton = model.getObjectByName( 'b_button' ).children[ 0 ];
   }
 
+  const baseCol = new THREE.Color(0x666666);
+  const touchCol = new THREE.Color(0x6666ff);
+
   return {
-    //ADD TOUCH DETECTION TO ALL THE BUTTONS??
-    // 'trackpad touch began': function(){
-    //   trackpadTouch.visible = trackpad.isTouched;
-    // },
-    // 'trackpad touch ended': function(){
-    //   trackpadTouch.visible = trackpad.isTouched;
-    // },
+    'thumbstick touch began': function(){
+      thumbstick.children[0].material.color = touchCol;
+    },
+    'thumbstick touch ended': function(){
+      thumbstick.children[0].material.color = baseCol;
+    },
     'axes changed': function( { axes } ){
 
-       const rotX = mapRange(axes[ 0 ], -1, 1, -20, 20); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
-       const rotZ = mapRange(axes[ 1 ], -1, 1, 20, -20);
+      const rotX = mapRange(axes[ 0 ], -1, 1, -20, 20); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
+      const rotZ = mapRange(axes[ 1 ], -1, 1, 20, -20);
 
-       // if(controller.gamepad.hand == 'left') {
-
-       //     thumbstickPivot.rotation.z = rotX * TO_RADIANS;
-       //     thumbstickPivot.rotation.x = rotZ * TO_RADIANS;
-
-       // } else if(controller.gamepad.hand == 'right') {
-
-           thumbstickPivot.rotation.z = rotX * TO_RADIANS;
-           thumbstickPivot.rotation.x = rotZ * TO_RADIANS;
-
-       // }
-
+      thumbstickPivot.rotation.z = rotX * TO_RADIANS;
+      thumbstickPivot.rotation.x = rotZ * TO_RADIANS;
     },
+    //can't add this since the event doesn't get fired
+    // 'trigger touch began': function(){      
+    //   trigger.material.color = touchCol;
+    // },
+    // 'trigger touch ended': function(){      
+    //   trigger.material.color = baseCol;
+    // },
     'trigger value changed': function( { value } ){
       const mapped = mapRange( value, 0, 1, 0, 17);
       triggerPivot.rotation.x = mapped * TO_RADIANS;
     },
+    //can't add this since the event doesn't get fired
+    // 'grip touch began': function(){      
+    //   grip.material.color = touchCol;
+    // },
+    // 'grip touch ended': function(){      
+    //   grip.material.color = baseCol;
+    // },
     'grip value changed': function( { value } ){
       const mapped = mapRange( value, 0, 1, 0, 12);
-      
       if(controller.gamepad.hand == 'left') {
-
         gripPivot.rotation.y = - mapped * TO_RADIANS;
-
       } else if(controller.gamepad.hand == 'right') {
-      
         gripPivot.rotation.y = mapped * TO_RADIANS;
-      
       }
     },
-    'A value changed': function( { value } ){
+    'A touch began': function(){      
+      aButton.material.color = touchCol;
+    },
+    'A touch ended': function(){      
+      aButton.material.color = baseCol;
+    },
+    'A value changed': function( { value } ){      
       const mapped = mapRange(value, 0, 1, 0, 0.00085);
-      aButton.position.y = -mapped;
+      aButton.position.y = -mapped; 
+    },
+    'B touch began': function(){      
+      bButton.material.color = touchCol;
+    },
+    'B touch ended': function(){      
+      bButton.material.color = baseCol;
     },
     'B value changed': function( { value } ){
       const mapped = mapRange(value, 0, 1, 0, 0.00085);
       bButton.position.y = -mapped;
     },
+    'X touch began': function(){      
+      xButton.material.color = touchCol;
+    },
+    'X touch ended': function(){      
+      xButton.material.color = baseCol;
+    },
     'X value changed': function( { value } ){
       const mapped = mapRange(value, 0, 1, 0, 0.00085);
       xButton.position.y = -mapped;
+    },
+    'Y touch began': function(){      
+      yButton.material.color = touchCol;
+    },
+    'Y touch ended': function(){      
+      yButton.material.color = baseCol;
     },
     'Y value changed': function( { value } ){
       const mapped = mapRange(value, 0, 1, 0, 0.00085);
