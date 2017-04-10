@@ -69,10 +69,11 @@ const TO_RADIANS = Math.PI / 180;
 
 function generateBindings( controller, model ){
 
-  const thumbstick = model.getObjectByName( 'thumbstick' );
   const thumbstickPivot = model.getObjectByName( 'thumbstick_pivot' );
+  const thumbstick = model.getObjectByName( 'thumbstick' );
   const triggerPivot = model.getObjectByName( 'trigger_pivot' );
   const gripPivot = model.getObjectByName( 'grip_pivot' );
+  const thumbrest = model.getObjectByName( 'thumbrest' ).children[ 0 ];
 
   if(controller.gamepad.hand == 'left') {
     var xButton = model.getObjectByName( 'x_button' ).children[ 0 ];
@@ -95,11 +96,11 @@ function generateBindings( controller, model ){
     },
     'axes changed': function( { axes } ){
 
-      const rotX = mapRange(axes[ 1 ], -1, 1, -20, 20);
-      const rotZ = mapRange(axes[ 0 ], 1, -1, -20, 20);
+      const rotX = mapRange(axes[ 1 ], 1, -1, -20, 20);
+      const rotZ = mapRange(axes[ 0 ], -1, 1, -20, 20);
 
-      thumbstickPivot.rotation.x = - rotX * TO_RADIANS;
-      thumbstickPivot.rotation.z = - rotZ * TO_RADIANS;
+      thumbstickPivot.rotation.x = rotX * TO_RADIANS;
+      thumbstickPivot.rotation.z = rotZ * TO_RADIANS;
     },
     //can't add this yet. The event doesn't get fired
 
@@ -168,6 +169,12 @@ function generateBindings( controller, model ){
     'Y value changed': function( { value } ){
       const mapped = mapRange(value, 0, 1, 0, 0.00085);
       yButton.position.y = -mapped;
+    },
+    'thumbrest touch began': function( { value } ){
+      thumbrest.material.color = touchCol;
+    },
+    'thumbrest touch ended': function( { value } ){
+      thumbrest.material.color = baseCol;
     }
   }
 }
