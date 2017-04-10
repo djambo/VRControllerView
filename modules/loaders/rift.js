@@ -35,7 +35,7 @@ export function load( {
         const dae = collada.scene;
 
         //some collada fixes
-        dae.scale.x = dae.scale.y = dae.scale.z = 1;
+        dae.scale.x = dae.scale.y = dae.scale.z = 1 ;
         dae.rotation.y = Math.PI;
         dae.rotation.x = 50.6 * TO_RADIANS;
 
@@ -95,13 +95,14 @@ function generateBindings( controller, model ){
     },
     'axes changed': function( { axes } ){
 
-      const rotX = mapRange(axes[ 0 ], -1, 1, -20, 20); // -7 / 7 and -4 / 4 are values specified in the SteamVR json file
-      const rotZ = mapRange(axes[ 1 ], -1, 1, 20, -20);
+      const rotX = mapRange(axes[ 1 ], -1, 1, -20, 20);
+      const rotZ = mapRange(axes[ 0 ], 1, -1, -20, 20);
 
-      thumbstickPivot.rotation.z = rotX * TO_RADIANS;
-      thumbstickPivot.rotation.x = rotZ * TO_RADIANS;
+      thumbstickPivot.rotation.x = - rotX * TO_RADIANS;
+      thumbstickPivot.rotation.z = - rotZ * TO_RADIANS;
     },
-    //can't add this since the event doesn't get fired
+    //can't add this yet. The event doesn't get fired
+
     // 'trigger touch began': function(){      
     //   trigger.material.color = touchCol;
     // },
@@ -112,7 +113,8 @@ function generateBindings( controller, model ){
       const mapped = mapRange( value, 0, 1, 0, 17);
       triggerPivot.rotation.x = mapped * TO_RADIANS;
     },
-    //can't add this since the event doesn't get fired
+    //can't add this yet. The event doesn't get fired
+
     // 'grip touch began': function(){      
     //   grip.material.color = touchCol;
     // },
